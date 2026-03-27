@@ -169,16 +169,29 @@ async def attribute_data(req: AttributeRequest, db: AsyncSession = Depends(get_d
             confidence_delta=round(score.confidence - old_confidence, 4),
         ))
 
-    # Update personality confidence on profile
+    # Re-derive Personality Core (Big Five, MBTI, CCP) from updated dimensional scores
+    personality_core_updated = False
     if updates:
-        profile.personality_core_confidence = min(
-            1.0, (profile.personality_core_confidence or 0.0) + 0.02 * len(updates)
-        )
+        from ..services.personality_service import derive_personality_core
+        core = await derive_personality_core(twin_uuid, db)
+        personality_core_updated = True
+
+        # Update personality confidence on profile from derivation
+        profile.personality_core_confidence = core.derivation_confidence
+        profile.big_five = core.big_five
+        profile.mbti = core.mbti
+        profile.cognitive_complexity = core.cognitive_complexity
+
+    # Recompute CFS from dimensional confidences
+    if updates:
+        from ..services.fidelity_service import compute_cfs
+        profile.cfs = await compute_cfs(twin_uuid, db)
+        profile.cfs_last_computed = datetime.now(timezone.utc)
 
     await db.flush()
 
     return AttributeResponse(
         sub_components_updated=updates,
-        personality_core_updated=False,  # Phase 2: trigger re-derivation
+        personality_core_updated=personality_core_updated,
         personality_core_confidence=profile.personality_core_confidence or 0.0,
     )

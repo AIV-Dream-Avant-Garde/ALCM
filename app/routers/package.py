@@ -15,6 +15,7 @@ from ..database import get_db
 from ..models.twin_profile import TwinProfile
 from ..models.personality_core import PersonalityCore
 from ..models.dimensional_score import DimensionalScore
+from ..models.context_modulation import ContextModulation
 from ..models.rag_entry import RagEntry
 from ..models.voice_profile import VoiceProfile
 from ..models.visual_profile import VisualProfile
@@ -111,10 +112,22 @@ async def _build_identity_profile(tid, profile: TwinProfile, db: AsyncSession) -
             "confidence": s.confidence,
         }
 
+    # Context modulation overrides
+    ctx_result = await db.execute(
+        select(ContextModulation).where(ContextModulation.twin_id == tid)
+    )
+    ctx_mods = ctx_result.scalars().all()
+    context_mod_data = {}
+    for cm in ctx_mods:
+        context_mod_data.setdefault(cm.context_type, {})[cm.sub_component] = {
+            "override_value": cm.override_value,
+            "confidence": cm.confidence,
+        }
+
     return {
         "personality_core": personality_core,
         "behavioral_instructions": behavioral,
-        "context_modulation": {},  # Phase 2: load from context_modulation table
+        "context_modulation": context_mod_data,
         "guardrail_config": profile.guardrail_config or {},
     }
 
