@@ -5,7 +5,7 @@ POST /generate/stream — SSE streaming
 """
 import json
 import logging
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from typing import Optional, List, Dict
@@ -16,6 +16,7 @@ from ..database import get_db
 from ..models.twin_profile import TwinProfile
 from ..services.llm_provider import get_llm_provider
 from ..core.prompt_assembly import assemble_prompt
+from ..core.errors import TwinNotFound, TwinLocked, SuccessorHold, GenerationFailed
 from ..utils import parse_uuid
 
 router = APIRouter(tags=["generate"])
@@ -56,10 +57,12 @@ async def generate(req: GenerateRequest, db: AsyncSession = Depends(get_db)):
     )
     profile = result.scalar_one_or_none()
     if not profile:
-        raise HTTPException(status_code=404, detail="Twin not found in ALCM")
+        raise TwinNotFound(req.twin_id)
 
     if profile.status == "LOCKED":
-        raise HTTPException(status_code=423, detail={"code": "TWIN_LOCKED", "message": "Twin is locked."})
+        raise TwinLocked()
+    if profile.status == "PROTECTED_HOLD":
+        raise SuccessorHold()
 
     # Assemble prompt from normalized tables
     system_prompt = await assemble_prompt(
@@ -72,12 +75,17 @@ async def generate(req: GenerateRequest, db: AsyncSession = Depends(get_db)):
         db=db,
     )
 
+    # Generate with graceful degradation on LLM failure
     provider = get_llm_provider()
-    response_text = await provider.generate(
-        prompt=req.context,
-        context=system_prompt,
-        temperature=0.7,
-    )
+    try:
+        response_text = await provider.generate(
+            prompt=req.context,
+            context=system_prompt,
+            temperature=0.7,
+        )
+    except Exception as e:
+        logger.error(f"LLM generation failed for twin {req.twin_id}: {e}", exc_info=True)
+        raise GenerationFailed(f"LLM provider error: {type(e).__name__}")
 
     # === SAFEGUARD GATEWAY ===
     # Validate generated response against personality profile and guardrails
@@ -203,10 +211,12 @@ async def generate_stream(req: GenerateRequest, db: AsyncSession = Depends(get_d
     )
     profile = result.scalar_one_or_none()
     if not profile:
-        raise HTTPException(status_code=404, detail="Twin not found in ALCM")
+        raise TwinNotFound(req.twin_id)
 
     if profile.status == "LOCKED":
-        raise HTTPException(status_code=423, detail={"code": "TWIN_LOCKED", "message": "Twin is locked."})
+        raise TwinLocked()
+    if profile.status == "PROTECTED_HOLD":
+        raise SuccessorHold()
 
     system_prompt = await assemble_prompt(
         twin_id=twin_uuid,
