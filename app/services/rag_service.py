@@ -17,6 +17,20 @@ from app.services.embedding_service import generate_embedding
 logger = logging.getLogger(__name__)
 
 
+# Keywords that indicate fear/need-relevant conversational context
+FEAR_CONTEXT_SIGNALS = [
+    "afraid", "fear", "scared", "anxious", "worry", "nervous", "avoid",
+    "dread", "concern", "risk", "danger", "threat", "uncomfortable",
+    "stressed", "overwhelmed", "panic", "phobia",
+]
+NEED_CONTEXT_SIGNALS = [
+    "need", "want", "desire", "motivated", "driven", "fulfilled",
+    "purpose", "meaning", "autonomy", "recognition", "security",
+    "why do you", "what drives", "what matters", "important to you",
+    "decision", "choose", "priority", "value",
+]
+
+
 async def retrieve_relevant_entries(
     twin_id: UUID,
     query: str,
@@ -26,18 +40,45 @@ async def retrieve_relevant_entries(
     """Retrieve the most relevant RAG entries for a query.
 
     Strategy:
-    1. If embeddings are available and query can be embedded → vector similarity search
-    2. Otherwise → conviction-based retrieval (highest conviction first)
+    1. Detect if query touches fear/need topics → boost those categories
+    2. If embeddings available → vector similarity search
+    3. Otherwise → conviction-based retrieval
+    4. Merge fear/need-specific entries when contextually relevant
     """
-    # Try vector similarity search
-    query_embedding = await generate_embedding(query)
-    if query_embedding is not None:
-        entries = await _vector_search(twin_id, query_embedding, limit, db)
-        if entries:
-            return entries
+    entries = []
 
-    # Fallback: conviction-based retrieval
-    return await _conviction_search(twin_id, limit, db)
+    # Check if query context warrants fear/need entries
+    query_lower = query.lower()
+    needs_fear = any(signal in query_lower for signal in FEAR_CONTEXT_SIGNALS)
+    needs_need = any(signal in query_lower for signal in NEED_CONTEXT_SIGNALS)
+
+    # Retrieve fear/need entries specifically when contextually relevant
+    if needs_fear or needs_need:
+        targeted_categories = []
+        if needs_fear:
+            targeted_categories.append("fear")
+        if needs_need:
+            targeted_categories.append("need")
+        targeted = await _category_search(twin_id, targeted_categories, min(2, limit), db)
+        entries.extend(targeted)
+
+    # Fill remaining slots with general retrieval
+    remaining = limit - len(entries)
+    if remaining > 0:
+        query_embedding = await generate_embedding(query)
+        if query_embedding is not None:
+            general = await _vector_search(twin_id, query_embedding, remaining, db)
+            if general:
+                # Deduplicate against already-added fear/need entries
+                existing_ids = {e.id for e in entries}
+                entries.extend([e for e in general if e.id not in existing_ids])
+                return entries[:limit]
+
+        general = await _conviction_search(twin_id, remaining, db)
+        existing_ids = {e.id for e in entries}
+        entries.extend([e for e in general if e.id not in existing_ids])
+
+    return entries[:limit]
 
 
 async def _vector_search(
@@ -90,6 +131,26 @@ async def _vector_search(
     except Exception as e:
         logger.warning(f"Vector search failed (falling back to conviction): {e}")
         return []
+
+
+async def _category_search(
+    twin_id: UUID,
+    categories: list[str],
+    limit: int,
+    db: AsyncSession,
+) -> List[RagEntry]:
+    """Retrieve entries from specific RAG categories (e.g., fear, need)."""
+    result = await db.execute(
+        select(RagEntry)
+        .where(
+            RagEntry.twin_id == twin_id,
+            RagEntry.is_active == True,
+            RagEntry.category.in_(categories),
+        )
+        .order_by(RagEntry.conviction.desc())
+        .limit(limit)
+    )
+    return list(result.scalars().all())
 
 
 async def _conviction_search(

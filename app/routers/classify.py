@@ -70,6 +70,13 @@ async def classify_content(req: ClassifyRequest, db: AsyncSession = Depends(get_
     profile.psychographic_coverage = coverage
     if coverage:
         profile.overall_coverage = sum(coverage.values()) / (11 * 100) * 100
+
+    # Detect fear/need signals and create RAG entries
+    from ..services.classifier_service import detect_fear_need_signals, create_fear_need_rag_entries
+    fear_need = detect_fear_need_signals(req.content)
+    if fear_need:
+        await create_fear_need_rag_entries(twin_uuid, req.content, fear_need, db)
+
     await db.flush()
 
     return ClassifyResponse(

@@ -197,3 +197,58 @@ async def _get_recent_count(twin_id: UUID, category: str, db: AsyncSession) -> i
         )
     )
     return result.scalar() or 0
+
+
+# Signal keywords for detecting fear/need content to route to RAG
+FEAR_SIGNALS = [
+    "afraid", "fear", "scared", "anxious", "worry", "dread", "phobia",
+    "avoid", "terrified", "nervous", "panic", "apprehensive", "uneasy",
+    "intimidated", "aversion", "can't stand", "hate dealing with",
+]
+NEED_SIGNALS = [
+    "need", "require", "must have", "can't function without", "essential",
+    "crave", "driven by", "motivated by", "fulfilled by", "autonomy",
+    "recognition", "security", "routine", "creative freedom", "validation",
+    "structure", "independence", "connection", "purpose",
+]
+
+
+def detect_fear_need_signals(content: str) -> list[str]:
+    """Detect if content contains fear or need signals for RAG categorization.
+
+    Returns list of detected RAG categories: ['fear'], ['need'], ['fear', 'need'], or [].
+    """
+    content_lower = content.lower()
+    detected = []
+    if any(signal in content_lower for signal in FEAR_SIGNALS):
+        detected.append("fear")
+    if any(signal in content_lower for signal in NEED_SIGNALS):
+        detected.append("need")
+    return detected
+
+
+async def create_fear_need_rag_entries(
+    twin_id: UUID,
+    content: str,
+    detected_categories: list[str],
+    db: AsyncSession,
+):
+    """Create RAG entries for detected fear/need signals.
+
+    Called after psychographic classification when fear/need content is detected.
+    These entries are stored alongside standard RAG entries and surfaced during
+    generation when contextually relevant.
+    """
+    from app.services.rag_service import store_entry_with_embedding
+
+    for category in detected_categories:
+        await store_entry_with_embedding(
+            twin_id=twin_id,
+            content=content,
+            topic=f"detected_{category}",
+            category=category,
+            source_type="CLASSIFICATION_DERIVED",
+            conviction=0.6,
+            db=db,
+        )
+        logger.info(f"Created RAG entry category='{category}' for twin {twin_id}")

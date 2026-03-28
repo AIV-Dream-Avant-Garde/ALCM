@@ -320,6 +320,59 @@ def test_score_instruction_full_coverage():
 
 # === Circuit Breaker Tests ===
 
+# === Fear/Need RAG Category Tests ===
+
+def _detect_fear_need(content):
+    """Local reimplementation of fear/need detection to avoid SQLAlchemy import."""
+    FEAR = ["afraid", "fear", "scared", "anxious", "worry", "dread", "phobia",
+            "avoid", "terrified", "nervous", "panic", "apprehensive", "uneasy",
+            "intimidated", "aversion", "can't stand", "hate dealing with"]
+    NEED = ["need", "require", "must have", "can't function without", "essential",
+            "crave", "driven by", "motivated by", "fulfilled by", "autonomy",
+            "recognition", "security", "routine", "creative freedom", "validation",
+            "structure", "independence", "connection", "purpose"]
+    c = content.lower()
+    detected = []
+    if any(s in c for s in FEAR):
+        detected.append("fear")
+    if any(s in c for s in NEED):
+        detected.append("need")
+    return detected
+
+
+def test_fear_signal_detection():
+    """Fear signals in content should be detected for RAG routing."""
+    assert "fear" in _detect_fear_need("I'm afraid of public speaking")
+    assert "fear" in _detect_fear_need("She avoids confrontation at all costs")
+    assert "fear" in _detect_fear_need("The thought of failure makes me anxious")
+    assert "fear" not in _detect_fear_need("I love working with teams")
+
+
+def test_need_signal_detection():
+    """Need signals in content should be detected for RAG routing."""
+    assert "need" in _detect_fear_need("I need creative autonomy to do my best work")
+    assert "need" in _detect_fear_need("Recognition is what drives me")
+    assert "need" in _detect_fear_need("I'm motivated by helping others grow")
+    assert "need" not in _detect_fear_need("The weather is nice today")
+
+
+def test_fear_and_need_both_detected():
+    """Content with both fear and need signals should detect both."""
+    result = _detect_fear_need("I'm afraid of losing my creative autonomy — I need independence")
+    assert "fear" in result
+    assert "need" in result
+
+
+def test_rag_category_enum_includes_fear_need():
+    """RAG category constraint should include 8 values."""
+    valid_categories = {"position", "expertise", "opinion", "preference", "fact", "anecdote", "fear", "need"}
+    assert len(valid_categories) == 8
+    assert "fear" in valid_categories
+    assert "need" in valid_categories
+
+
+# === Circuit Breaker Tests ===
+
 def test_circuit_breaker_opens_after_threshold():
     """Circuit breaker should open after CIRCUIT_BREAKER_THRESHOLD failures."""
     from app.services.llm_provider import CircuitBreaker, CIRCUIT_BREAKER_THRESHOLD

@@ -1,7 +1,7 @@
 """RAG Knowledge Base entries — rag_entries table."""
 import uuid
 from datetime import datetime, timezone
-from sqlalchemy import Column, String, Text, Float, Boolean, DateTime, ForeignKey, Index, text
+from sqlalchemy import Column, String, Text, Float, Boolean, DateTime, ForeignKey, Index, text, CheckConstraint
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import relationship
 
@@ -22,7 +22,7 @@ class RagEntry(Base):
     embedding = Column(JSONB)  # JSONB list of floats; pgvector Vector(1536) is a future enhancement
 
     topic = Column(String(255))
-    category = Column(String(50))  # position | expertise | opinion | preference | fact | anecdote
+    category = Column(String(50))  # position | expertise | opinion | preference | fact | anecdote | fear | need
     source_type = Column(String(50))
     source_ref = Column(Text)
 
@@ -37,4 +37,8 @@ class RagEntry(Base):
 
     __table_args__ = (
         Index("idx_rag_twin", "twin_id", postgresql_where=text("is_active = true")),
+        CheckConstraint(
+            "category IS NULL OR category IN ('position','expertise','opinion','preference','fact','anecdote','fear','need')",
+            name="ck_rag_category",
+        ),
     )
