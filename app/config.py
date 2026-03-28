@@ -1,6 +1,10 @@
 """ALCM API settings loaded from environment variables."""
+import logging
 from pydantic_settings import BaseSettings
+from pydantic import Field
 from functools import lru_cache
+
+logger = logging.getLogger(__name__)
 
 
 class Settings(BaseSettings):
@@ -23,7 +27,7 @@ class Settings(BaseSettings):
     llm_request_timeout: int = 60
     llm_stream_timeout: int = 120
 
-    # Embedding model (for RAG vector search — Phase 2)
+    # Embedding model (for RAG vector search)
     embedding_model: str = "text-embedding-3-small"
     openai_api_key: str = ""
 
@@ -33,8 +37,8 @@ class Settings(BaseSettings):
     # ElevenLabs (behind abstraction)
     elevenlabs_api_key: str = ""
 
-    # Auth (bearer token for platform-to-ALCM calls)
-    alcm_service_token: str = "dev-alcm-token-change-in-production"
+    # Auth — NO DEFAULT. Must be set via .env or environment variable.
+    alcm_service_token: str = ""
 
     # Storage
     minio_endpoint: str = "localhost:9000"
@@ -52,10 +56,37 @@ class Settings(BaseSettings):
     max_prompt_tokens: int = 27000
     max_output_tokens: int = 4000
 
+    # Rate limiting
+    rate_limit_requests: int = 100
+    rate_limit_window_seconds: int = 60
+
+    # Sanitization
+    max_body_size_bytes: int = 5 * 1024 * 1024  # 5MB
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
         extra = "ignore"
+
+
+def validate_settings(settings: Settings) -> list[str]:
+    """Validate critical settings on startup. Returns list of warnings."""
+    warnings = []
+    if not settings.alcm_service_token:
+        raise ValueError(
+            "ALCM_SERVICE_TOKEN is not set. "
+            "Set it in .env or as an environment variable. "
+            "The API cannot start without authentication configured."
+        )
+    if len(settings.alcm_service_token) < 32:
+        warnings.append("ALCM_SERVICE_TOKEN is shorter than 32 characters. Use a stronger token in production.")
+
+    if settings.llm_provider == "gemini" and not settings.google_genai_api_key:
+        warnings.append("LLM_PROVIDER is 'gemini' but GOOGLE_GENAI_API_KEY is not set.")
+    if settings.llm_provider == "claude" and not settings.anthropic_api_key:
+        warnings.append("LLM_PROVIDER is 'claude' but ANTHROPIC_API_KEY is not set.")
+
+    return warnings
 
 
 @lru_cache()

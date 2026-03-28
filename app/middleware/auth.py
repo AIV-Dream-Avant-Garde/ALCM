@@ -3,6 +3,7 @@
 The platform service must include Authorization: Bearer <token> on every request.
 The /health endpoint is exempt (used for Docker health checks).
 """
+import hmac
 import logging
 from fastapi import Request
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -29,15 +30,30 @@ class ALCMAuthMiddleware(BaseHTTPMiddleware):
         if not auth_header.startswith("Bearer "):
             return JSONResponse(
                 status_code=401,
-                content={"detail": "Missing or invalid Authorization header"},
+                content={
+                    "error": {
+                        "code": "INVALID_REQUEST",
+                        "message": "Missing or invalid Authorization header.",
+                        "status": 401,
+                        "details": {},
+                    }
+                },
             )
 
         token = auth_header[7:]
-        if token != expected_token:
+        # Timing-safe comparison to prevent statistical token extraction
+        if not hmac.compare_digest(token.encode(), expected_token.encode()):
             logger.warning(f"Invalid ALCM auth token from {request.client.host}")
             return JSONResponse(
                 status_code=403,
-                content={"detail": "Invalid authentication token"},
+                content={
+                    "error": {
+                        "code": "INVALID_REQUEST",
+                        "message": "Invalid authentication token.",
+                        "status": 403,
+                        "details": {},
+                    }
+                },
             )
 
         return await call_next(request)

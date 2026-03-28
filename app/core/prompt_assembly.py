@@ -284,19 +284,14 @@ async def _build_layer_4_rag_and_memory(
     twin_id: UUID, context: str, deployment_scope: str, db: AsyncSession,
 ) -> str:
     """Layer 4: RAG entries + episodic memory for contextual grounding."""
-    from app.models.rag_entry import RagEntry
+    from app.services.rag_service import retrieve_relevant_entries
     from app.services.memory_service import get_relevant_episodes
 
     parts = []
 
-    # RAG entries (top 5 by conviction)
-    rag_result = await db.execute(
-        select(RagEntry)
-        .where(RagEntry.twin_id == twin_id, RagEntry.is_active == True)
-        .order_by(RagEntry.conviction.desc())
-        .limit(5)
-    )
-    entries = rag_result.scalars().all()
+    # RAG entries — uses vector similarity search when embeddings available,
+    # falls back to conviction-based retrieval
+    entries = await retrieve_relevant_entries(twin_id, context, limit=5, db=db)
     if entries:
         rag_lines = []
         for entry in entries:

@@ -6,6 +6,7 @@ from fastapi.responses import JSONResponse
 
 import logging
 from .database import init_db
+from .config import get_settings, validate_settings
 from .core.errors import ALCMError, alcm_error_handler
 
 logger = logging.getLogger(__name__)
@@ -21,6 +22,13 @@ from .routers import (
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Starting ALCM API...")
+
+    # Validate critical settings before anything else
+    settings = get_settings()
+    warnings = validate_settings(settings)
+    for w in warnings:
+        logger.warning(f"Config warning: {w}")
+
     try:
         await init_db()
         logger.info("ALCM database connected")
@@ -46,7 +54,7 @@ def create_app() -> FastAPI:
     # Register spec-compliant error handler
     app.add_exception_handler(ALCMError, alcm_error_handler)
 
-    # Catch unhandled exceptions as GENERATION_FAILED
+    # Catch unhandled exceptions
     @app.exception_handler(Exception)
     async def unhandled_exception_handler(request: Request, exc: Exception):
         logger.error(f"Unhandled exception on {request.url.path}: {exc}", exc_info=True)
@@ -54,7 +62,7 @@ def create_app() -> FastAPI:
             status_code=500,
             content={
                 "error": {
-                    "code": "GENERATION_FAILED",
+                    "code": "SERVICE_UNAVAILABLE",
                     "message": "An internal error occurred.",
                     "status": 500,
                     "details": {},
