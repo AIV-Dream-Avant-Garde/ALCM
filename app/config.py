@@ -59,6 +59,7 @@ class Settings(BaseSettings):
     # Rate limiting
     rate_limit_requests: int = 100
     rate_limit_window_seconds: int = 60
+    redis_url: str = ""  # Optional: "redis://localhost:6379/0" for distributed rate limiting
 
     # Sanitization
     max_body_size_bytes: int = 5 * 1024 * 1024  # 5MB

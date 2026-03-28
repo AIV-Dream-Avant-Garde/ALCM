@@ -26,6 +26,9 @@ anthropic>=0.40.0
 # Encryption
 cryptography
 
+# Redis (optional — for distributed rate limiting)
+redis>=5.0.0
+
 # Storage
 boto3==1.35.81
 

@@ -70,7 +70,11 @@ def create_app() -> FastAPI:
             },
         )
 
-    # Rate limiting (outermost — applied first)
+    # Request tracing (outermost — wraps everything with request ID + structured logging)
+    from .middleware.tracing import RequestTracingMiddleware
+    app.add_middleware(RequestTracingMiddleware)
+
+    # Rate limiting
     from .middleware.rate_limit import RateLimitMiddleware
     app.add_middleware(RateLimitMiddleware)
 

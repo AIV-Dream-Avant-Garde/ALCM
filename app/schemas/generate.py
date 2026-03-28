@@ -13,9 +13,12 @@ class GenerateRequest(BaseModel):
 
 
 class GuardrailChecks(BaseModel):
-    content_safety: str = "PASSED"
     personality_consistency: str = "PASSED"
-    topic_restrictions: str = "PASSED"
+    content_safety: str = "PASSED"
+    brand_compliance: str = "PASSED"
+    deployment_scope: str = "PASSED"
+    legal_compliance: str = "PASSED"
+    knowledge_accuracy: str = "PASSED"
 
 
 class GenerateResponse(BaseModel):
