@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 EMBEDDING_DIMENSION = 1536
 
 
-async def generate_embedding(text: str) -> Optional[list[float]]:
+async def generate_embedding(text: str) -> Optional[list]:
     """Generate a vector embedding for the given text.
 
     Returns:

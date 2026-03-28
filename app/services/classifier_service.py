@@ -6,7 +6,7 @@ Stage 2: Rule-based validation (co-occurrence, field compatibility,
 """
 import hashlib
 import logging
-from typing import Optional
+from typing import Optional, List
 from uuid import UUID
 
 from sqlalchemy import select, func
@@ -67,7 +67,7 @@ async def classify_and_persist(
     contributor_id: Optional[UUID] = None,
     contributor_type: Optional[str] = None,
     db: AsyncSession = None,
-) -> tuple[list[dict], Optional[PsychographicData]]:
+) -> tuple:
     """2-stage classification: LLM semantic classification + rule validation."""
 
     # === STAGE 1: LLM Classification ===
@@ -118,11 +118,11 @@ async def classify_and_persist(
 
 
 async def _validate_classifications(
-    classifications: list[dict],
+    classifications,
     twin_id: UUID,
     content: str,
     db: AsyncSession,
-) -> list[dict]:
+) -> List[dict]:
     """Stage 2 rule engine: validate LLM classifications."""
 
     # Rule 1: Minimum confidence threshold
@@ -213,7 +213,7 @@ NEED_SIGNALS = [
 ]
 
 
-def detect_fear_need_signals(content: str) -> list[str]:
+def detect_fear_need_signals(content: str) -> List[str]:
     """Detect if content contains fear or need signals for RAG categorization.
 
     Returns list of detected RAG categories: ['fear'], ['need'], ['fear', 'need'], or [].
@@ -230,7 +230,7 @@ def detect_fear_need_signals(content: str) -> list[str]:
 async def create_fear_need_rag_entries(
     twin_id: UUID,
     content: str,
-    detected_categories: list[str],
+    detected_categories,
     db: AsyncSession,
 ):
     """Create RAG entries for detected fear/need signals.

@@ -3,6 +3,7 @@
 Owns: prompt assembly → LLM call → consistency validation → retry → response.
 """
 import logging
+from typing import Optional
 from uuid import UUID
 
 from sqlalchemy import select
@@ -160,7 +161,7 @@ async def generate_response(req: GenerateRequest, db: AsyncSession) -> GenerateR
 
 async def _check_personality_consistency(
     twin_id: UUID, response_text: str, context: str, db: AsyncSession,
-) -> float | None:
+) -> Optional[float]:
     """LLM-based personality consistency check (Safeguard Gateway)."""
     core_result = await db.execute(
         select(PersonalityCore).where(

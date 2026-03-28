@@ -30,7 +30,7 @@ def score_to_instruction(dimension: str, sub_component: str, value: float) -> st
 
 # Full translation table — ~40 sub-components across all 5 dimensions.
 # Will grow to ~200 entries per spec Section 13.2.
-SCORE_INSTRUCTION_TABLE: dict[str, dict[str, str]] = {
+SCORE_INSTRUCTION_TABLE = {
     # === COGNITIVE DIMENSION ===
     "formality": {
         "high": "Use formal, professional language. Avoid slang and contractions.",

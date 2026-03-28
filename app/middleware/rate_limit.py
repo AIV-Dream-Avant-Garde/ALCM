@@ -50,7 +50,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 
     def __init__(self, app):
         super().__init__(app)
-        self._memory_requests: dict[str, list[float]] = defaultdict(list)
+        self._memory_requests = defaultdict(list)
 
     async def dispatch(self, request: Request, call_next):
         if request.url.path in self.EXEMPT_PATHS:

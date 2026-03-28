@@ -83,7 +83,7 @@ async def retrieve_relevant_entries(
 
 async def _vector_search(
     twin_id: UUID,
-    query_embedding: list[float],
+    query_embedding,
     limit: int,
     db: AsyncSession,
 ) -> List[RagEntry]:
@@ -135,7 +135,7 @@ async def _vector_search(
 
 async def _category_search(
     twin_id: UUID,
-    categories: list[str],
+    categories,
     limit: int,
     db: AsyncSession,
 ) -> List[RagEntry]:

@@ -1,5 +1,6 @@
 """ALCM API settings loaded from environment variables."""
 import logging
+from typing import List
 from pydantic_settings import BaseSettings
 from pydantic import Field
 from functools import lru_cache
@@ -70,7 +71,7 @@ class Settings(BaseSettings):
         extra = "ignore"
 
 
-def validate_settings(settings: Settings) -> list[str]:
+def validate_settings(settings: Settings) -> List[str]:
     """Validate critical settings on startup. Returns list of warnings."""
     warnings = []
     if not settings.alcm_service_token:

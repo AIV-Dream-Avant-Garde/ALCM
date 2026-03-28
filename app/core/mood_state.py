@@ -43,7 +43,7 @@ RATIO_SCALE_COMPONENTS = {"generation_confidence", "listen_speak_ratio", "learni
 
 
 # In-memory mood cache per twin per session (production: Redis)
-_mood_cache: dict[str, dict] = {}
+_mood_cache = {}
 
 
 async def get_mood_state(twin_id: UUID, db=None) -> dict:
@@ -127,7 +127,7 @@ def shift_mood(
     return mood
 
 
-def compute_mood_modifiers(mood: dict) -> dict[str, float]:
+def compute_mood_modifiers(mood: dict) -> dict:
     """Compute transient mood modifiers for all affected sub-components.
 
     Returns dict of sub_component -> modifier value. Applied on top of
