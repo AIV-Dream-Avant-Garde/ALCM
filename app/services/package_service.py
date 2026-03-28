@@ -19,7 +19,7 @@ from app.models.rag_entry import RagEntry
 from app.models.voice_profile import VoiceProfile
 from app.models.visual_profile import VisualProfile
 from app.core.errors import TwinNotFound, InvalidRequest
-from app.schemas.common import PackageResponse
+from app.schemas.package import PackageResponse
 
 VALID_MODULES = {"identity_profile", "knowledge_base", "voice_identity", "visual_identity"}
 

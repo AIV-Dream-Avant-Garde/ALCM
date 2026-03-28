@@ -8,7 +8,7 @@ from ..database import get_db
 from ..models.twin_profile import TwinProfile
 from ..services.drift_service import compute_drift
 from ..core.errors import TwinNotFound
-from ..schemas.common import DriftResponse
+from ..schemas.drift import DriftResponse
 from ..utils import parse_uuid
 
 router = APIRouter(tags=["drift"])

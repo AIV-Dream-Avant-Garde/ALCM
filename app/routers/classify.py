@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ..database import get_db
 from ..models.twin_profile import TwinProfile
 from ..models.psychographic_data import PsychographicData
-from ..services.llm_provider import get_llm_provider
+from ..services.llm import get_llm_provider
 from ..core.errors import TwinNotFound, ClassificationFailed
 from ..schemas.classify import ClassifyRequest, ClassifyResponse, CategoryAffected
 from ..utils import parse_uuid

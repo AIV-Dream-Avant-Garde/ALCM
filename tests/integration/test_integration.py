@@ -375,7 +375,7 @@ def test_rag_category_enum_includes_fear_need():
 
 def test_circuit_breaker_opens_after_threshold():
     """Circuit breaker should open after CIRCUIT_BREAKER_THRESHOLD failures."""
-    from app.services.llm_provider import CircuitBreaker, CIRCUIT_BREAKER_THRESHOLD
+    from app.services.llm.resilient import CircuitBreaker, CIRCUIT_BREAKER_THRESHOLD
 
     cb = CircuitBreaker("test")
     assert cb.should_allow() is True
@@ -389,7 +389,7 @@ def test_circuit_breaker_opens_after_threshold():
 
 def test_circuit_breaker_resets_on_success():
     """Circuit breaker should reset after a successful call."""
-    from app.services.llm_provider import CircuitBreaker
+    from app.services.llm.resilient import CircuitBreaker
 
     cb = CircuitBreaker("test")
     cb.record_failure()

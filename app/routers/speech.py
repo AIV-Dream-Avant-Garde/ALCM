@@ -9,7 +9,7 @@ from ..models.twin_profile import TwinProfile
 from ..models.voice_profile import VoiceProfile
 from ..services.tts_service import get_tts_service
 from ..core.errors import TwinNotFound, InsufficientData, ServiceUnavailable
-from ..schemas.common import SpeechRequest
+from ..schemas.media import SpeechRequest
 from ..utils import parse_uuid
 
 router = APIRouter(tags=["speech"])

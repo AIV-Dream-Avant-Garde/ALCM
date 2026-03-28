@@ -13,7 +13,7 @@ from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.psychographic_data import PsychographicData
-from app.services.llm_provider import get_llm_provider
+from app.services.llm import get_llm_provider
 
 logger = logging.getLogger(__name__)
 

@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ..database import get_db
 from ..models.processing_job import ProcessingJob
 from ..core.errors import ALCMError
-from ..schemas.common import JobStatusResponse
+from ..schemas.jobs import JobStatusResponse
 from ..utils import parse_uuid
 
 router = APIRouter(tags=["jobs"])

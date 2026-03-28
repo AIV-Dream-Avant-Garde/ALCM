@@ -12,7 +12,7 @@ from app.models.twin_profile import TwinProfile
 from app.models.personality_core import PersonalityCore
 from app.core.prompt_assembly import assemble_prompt
 from app.core.errors import TwinNotFound, TwinLocked, SuccessorHold, GenerationFailed
-from app.services.llm_provider import get_llm_provider
+from app.services.llm import get_llm_provider
 from app.schemas.generate import GenerateRequest, GenerateResponse, GuardrailChecks
 
 logger = logging.getLogger(__name__)

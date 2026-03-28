@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..database import get_db
 from ..services.package_service import assemble_package
-from ..schemas.common import PackageResponse
+from ..schemas.package import PackageResponse
 
 router = APIRouter(tags=["package"])
 

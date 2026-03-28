@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ..database import get_db
 from ..models.twin_profile import TwinProfile
 from ..core.errors import TwinNotFound
-from ..schemas.common import GuardrailPush, GuardrailResponse
+from ..schemas.guardrails import GuardrailPush, GuardrailResponse
 from ..utils import parse_uuid
 
 router = APIRouter(tags=["guardrails"])

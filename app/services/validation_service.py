@@ -12,8 +12,8 @@ from app.models.twin_profile import TwinProfile
 from app.models.personality_core import PersonalityCore
 from app.models.dimensional_score import DimensionalScore
 from app.core.errors import TwinNotFound
-from app.services.llm_provider import get_llm_provider
-from app.schemas.common import ValidateRequest, ValidateResponse
+from app.services.llm import get_llm_provider
+from app.schemas.validate import ValidateRequest, ValidateResponse
 
 logger = logging.getLogger(__name__)
 

@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..database import get_db
 from ..services.validation_service import validate_consistency
-from ..schemas.common import ValidateRequest, ValidateResponse
+from ..schemas.validate import ValidateRequest, ValidateResponse
 
 router = APIRouter(tags=["validate"])
 

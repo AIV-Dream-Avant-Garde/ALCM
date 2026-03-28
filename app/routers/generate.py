@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ..database import get_db
 from ..models.twin_profile import TwinProfile
 from ..services.generation_service import generate_response
-from ..services.llm_provider import get_llm_provider
+from ..services.llm import get_llm_provider
 from ..core.prompt_assembly import assemble_prompt
 from ..core.errors import TwinNotFound, TwinLocked, SuccessorHold
 from ..schemas.generate import GenerateRequest, GenerateResponse

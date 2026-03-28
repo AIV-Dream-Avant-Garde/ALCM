@@ -15,7 +15,7 @@ from ..models.twin_profile import TwinProfile
 from ..core.errors import TwinNotFound
 from ..models.personality_core import PersonalityCore
 from ..models.dimensional_score import DimensionalScore
-from ..schemas.common import SnapshotResponse
+from ..schemas.snapshot import SnapshotResponse
 from ..utils import parse_uuid
 
 router = APIRouter(tags=["snapshot"])

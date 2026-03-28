@@ -35,7 +35,7 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.error(f"ALCM database connection failed: {e}", exc_info=True)
 
-    from .services.llm_provider import get_llm_provider
+    from .services.llm import get_llm_provider
     provider = get_llm_provider()
     logger.info(f"LLM provider: {type(provider).__name__} (configured: {provider.is_configured})")
 

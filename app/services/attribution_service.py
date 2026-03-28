@@ -15,7 +15,7 @@ from app.models.psychographic_data import PsychographicData
 from app.models.dimensional_score import DimensionalScore
 from app.core.bayesian import update_sub_component, INITIAL_STD_ERROR
 from app.core.errors import TwinNotFound, InsufficientData
-from app.services.llm_provider import get_llm_provider
+from app.services.llm import get_llm_provider
 from app.schemas.attribute import AttributeRequest, AttributeResponse, SubComponentUpdate
 
 logger = logging.getLogger(__name__)

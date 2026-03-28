@@ -4,7 +4,7 @@ from fastapi import APIRouter
 from sqlalchemy import text
 
 from ..database import async_session_maker
-from ..services.llm_provider import get_llm_provider
+from ..services.llm import get_llm_provider
 from ..services.tts_service import get_tts_service
 
 router = APIRouter(tags=["health"])

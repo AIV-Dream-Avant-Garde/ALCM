@@ -14,7 +14,7 @@ from app.models.episodic_memory import EpisodicMemory
 from app.models.dimensional_score import DimensionalScore
 from app.core.bayesian import update_sub_component
 from app.core.errors import TwinNotFound
-from app.services.llm_provider import get_llm_provider
+from app.services.llm import get_llm_provider
 from app.schemas.feedback import FeedbackRequest, FeedbackResponse
 
 logger = logging.getLogger(__name__)

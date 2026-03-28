@@ -8,7 +8,7 @@ from ..database import get_db
 from ..models.twin_profile import TwinProfile
 from ..models.processing_job import ProcessingJob
 from ..core.errors import TwinNotFound
-from ..schemas.common import AnalyzeMediaRequest, AnalyzeMediaResponse
+from ..schemas.media import AnalyzeMediaRequest, AnalyzeMediaResponse
 from ..utils import parse_uuid
 
 router = APIRouter(tags=["media"])
