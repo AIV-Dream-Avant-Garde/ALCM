@@ -1,7 +1,7 @@
 """Temporal interaction history — episodic_memories table."""
 import uuid
 from datetime import datetime, timezone
-from sqlalchemy import Column, String, Text, Float, Integer, DateTime, ForeignKey, Index, ARRAY
+from sqlalchemy import Column, String, Text, Float, Integer, DateTime, ForeignKey, Index, ARRAY, CheckConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
@@ -37,5 +37,9 @@ class EpisodicMemory(Base):
     __table_args__ = (
         Index("idx_episodic_twin", "twin_id"),
         Index("idx_episodic_twin_scope", "twin_id", "deployment_scope"),
-        Index("idx_episodic_twin_time", "twin_id", "interaction_at"),
+        Index("idx_episodic_twin_time", "twin_id", interaction_at.desc()),
+        CheckConstraint(
+            "emotional_valence IN ('POSITIVE','NEUTRAL','NEGATIVE')",
+            name="ck_episodic_valence",
+        ),
     )

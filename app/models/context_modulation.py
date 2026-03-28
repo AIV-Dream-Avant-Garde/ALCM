@@ -1,7 +1,7 @@
 """Context-specific value overrides — context_modulation table."""
 import uuid
 from datetime import datetime, timezone
-from sqlalchemy import Column, String, Float, Integer, DateTime, ForeignKey, UniqueConstraint, Index
+from sqlalchemy import Column, String, Float, Integer, DateTime, ForeignKey, UniqueConstraint, Index, CheckConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
@@ -31,4 +31,8 @@ class ContextModulation(Base):
         UniqueConstraint("twin_id", "context_type", "sub_component", name="uq_ctx_twin_type_sub"),
         Index("idx_ctx_twin", "twin_id"),
         Index("idx_ctx_twin_type", "twin_id", "context_type"),
+        CheckConstraint(
+            "context_type IN ('PROFESSIONAL','CASUAL','INTIMATE','FORMAL','CONFLICT','CREATIVE','PUBLIC')",
+            name="ck_ctx_context_type",
+        ),
     )

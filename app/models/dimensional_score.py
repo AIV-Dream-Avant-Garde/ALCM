@@ -1,7 +1,7 @@
 """Bayesian dimensional scores — dimensional_scores table."""
 import uuid
 from datetime import datetime, timezone
-from sqlalchemy import Column, String, Float, Integer, DateTime, ForeignKey, UniqueConstraint, Index
+from sqlalchemy import Column, String, Float, Integer, DateTime, ForeignKey, UniqueConstraint, Index, CheckConstraint
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import relationship
 
@@ -35,7 +35,11 @@ class DimensionalScore(Base):
     context_overrides = Column(JSONB, default=dict)
     # {"professional": 78, "casual": 52, "intimate": 41}
 
-    last_updated = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+    last_updated = Column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+    )
 
     # Relationship
     twin = relationship("TwinProfile", back_populates="dimensional_scores")
@@ -44,4 +48,12 @@ class DimensionalScore(Base):
         UniqueConstraint("twin_id", "dimension", "sub_component", name="uq_dims_twin_dim_sub"),
         Index("idx_dims_twin", "twin_id"),
         Index("idx_dims_twin_dim", "twin_id", "dimension"),
+        CheckConstraint(
+            "dimension IN ('COGNITIVE','EMOTIONAL','SOCIAL','EVOLUTIONARY','VISUAL')",
+            name="ck_dims_dimension",
+        ),
+        CheckConstraint(
+            "distribution_type IN ('CONTINUOUS','CATEGORICAL')",
+            name="ck_dims_distribution_type",
+        ),
     )

@@ -1,7 +1,7 @@
 """Async processing job queue — processing_jobs table."""
 import uuid
 from datetime import datetime, timezone
-from sqlalchemy import Column, String, Text, Integer, Float, DateTime, ForeignKey, Index, text
+from sqlalchemy import Column, String, Text, Integer, DateTime, ForeignKey, Index, text, CheckConstraint
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import relationship
 
@@ -39,4 +39,8 @@ class ProcessingJob(Base):
     __table_args__ = (
         Index("idx_jobs_status", "status", postgresql_where=text("status IN ('QUEUED', 'RETRY')")),
         Index("idx_jobs_twin", "twin_id"),
+        CheckConstraint(
+            "status IN ('QUEUED','PROCESSING','COMPLETED','FAILED','RETRY')",
+            name="ck_jobs_status",
+        ),
     )

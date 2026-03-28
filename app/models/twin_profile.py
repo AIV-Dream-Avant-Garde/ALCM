@@ -1,7 +1,7 @@
 """Central identity record in the ALCM API — twin_profiles table."""
 import uuid
 from datetime import datetime, timezone
-from sqlalchemy import Column, String, Float, Integer, Boolean, DateTime, Index
+from sqlalchemy import Column, String, Float, Integer, Boolean, DateTime, Index, CheckConstraint
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import relationship
 
@@ -72,4 +72,16 @@ class TwinProfile(Base):
 
     __table_args__ = (
         Index("idx_twin_profiles_status", "status"),
+        CheckConstraint(
+            "status IN ('INITIALIZING','BUILDING','ACTIVE','PROTECTED_HOLD','LOCKED','ARCHIVED')",
+            name="ck_twin_status",
+        ),
+        CheckConstraint(
+            "health_status IN ('BUILDING','HEALTHY','ATTENTION_NEEDED','ACTION_REQUIRED')",
+            name="ck_twin_health_status",
+        ),
+        CheckConstraint(
+            "clone_type IN ('PUBLIC_FIGURE','FICTIONAL_CHARACTER')",
+            name="ck_twin_clone_type",
+        ),
     )

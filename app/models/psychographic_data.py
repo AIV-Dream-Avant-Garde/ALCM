@@ -1,7 +1,7 @@
 """Classified psychographic data — psychographic_data table."""
 import uuid
 from datetime import datetime, timezone
-from sqlalchemy import Column, String, Text, Float, Boolean, DateTime, ForeignKey, Index, text
+from sqlalchemy import Column, String, Text, Float, Boolean, DateTime, ForeignKey, Index, text, CheckConstraint
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import relationship
 
@@ -45,4 +45,22 @@ class PsychographicData(Base):
         Index("idx_psycho_twin", "twin_id"),
         Index("idx_psycho_category", "twin_id", "category"),
         Index("idx_psycho_unprocessed", "twin_id", postgresql_where=text("processed = false")),
+        CheckConstraint(
+            "category IN ('MIND','HEART','SPIRIT','PHYSICALITY','EXPERIENCES',"
+            "'RELATIONSHIPS','SURROUNDINGS','WORK','ETHICS','FUTURE','INTERESTS_TASTES')",
+            name="ck_psycho_category",
+        ),
+        CheckConstraint(
+            "modality IN ('TEXT','AUDIO','VIDEO','URL','STRUCTURED_DATA')",
+            name="ck_psycho_modality",
+        ),
+        CheckConstraint(
+            "source_type IN ('SCRAPED_PUBLIC','PROFESSIONAL_UPLOAD','TRAINING_AREA',"
+            "'IN_PLATFORM','CROSS_PLATFORM','FEEDBACK')",
+            name="ck_psycho_source_type",
+        ),
+        CheckConstraint(
+            "approval_status IN ('AUTO_APPROVED','PENDING','APPROVED','REJECTED')",
+            name="ck_psycho_approval_status",
+        ),
     )
