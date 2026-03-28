@@ -1,7 +1,7 @@
 """Dynamic mood state mechanics.
 
-Phase 1: Returns neutral default. Phase 2 will derive from episodic memories
-and recent interaction sentiment. See Developer Guide Section 4.2.
+Returns a neutral default mood state. Derivation from episodic memories
+and recent interaction sentiment is a future enhancement. See Developer Guide Section 4.2.
 """
 from typing import Optional
 from uuid import UUID
@@ -10,9 +10,9 @@ from uuid import UUID
 async def get_mood_state(twin_id: UUID, db=None) -> dict:
     """Get current mood state for a twin.
 
-    Phase 1: Always returns neutral baseline.
-    Phase 2: Will derive from episodic memories, sentiment triggers,
-    and mood decay mechanics.
+    Returns neutral baseline.
+    Derivation from episodic memories, sentiment triggers,
+    and mood decay mechanics is a future enhancement.
     """
     return {
         "current_valence": 0,

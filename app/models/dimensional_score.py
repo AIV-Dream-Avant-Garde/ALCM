@@ -21,9 +21,9 @@ class DimensionalScore(Base):
     # Bayesian posterior (Normal-Normal for continuous)
     value = Column(Float, nullable=False, default=50.0)
     confidence = Column(Float, nullable=False, default=0.0)
-    std_error = Column(Float, nullable=False, default=30.0)
+    std_error = Column(Float, nullable=False, default=50.0)
     prior_mean = Column(Float, default=50.0)
-    prior_variance = Column(Float, default=900.0)  # 30^2
+    prior_variance = Column(Float, default=625.0)  # 25^2
     observation_count = Column(Integer, default=0)
 
     # For enum sub-components (Dirichlet-Categorical)

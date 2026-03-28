@@ -4,7 +4,7 @@ Derives Big Five scores from dimensional sub-components,
 MBTI from Big Five, and CCP from communication sub-components.
 
 See Developer Guide Section 5 (Personality Core).
-Phase 1: Basic derivation. Phase 2: Full facet-level scoring.
+Derives Big Five from dimensional sub-components. Facet-level scoring (30 explicit facets) is a future enhancement.
 """
 from uuid import UUID
 

@@ -1,7 +1,7 @@
 """Context-specific value resolution.
 
-Phase 1: Basic lookup from context_modulation table.
-Phase 2: Dynamic context detection from conversation signals.
+Resolves overrides via lookup from the context_modulation table.
+Dynamic context detection from conversation signals is a future enhancement.
 See Developer Guide Section 4.6.
 """
 from typing import Optional

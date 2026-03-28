@@ -6,25 +6,19 @@ import hashlib
 import json
 import uuid
 from datetime import datetime, timezone
-from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..database import get_db
 from ..models.twin_profile import TwinProfile
+from ..core.errors import TwinNotFound
 from ..models.personality_core import PersonalityCore
 from ..models.dimensional_score import DimensionalScore
+from ..schemas.common import SnapshotResponse
 from ..utils import parse_uuid
 
 router = APIRouter(tags=["snapshot"])
-
-
-class SnapshotResponse(BaseModel):
-    snapshot_ref: str
-    seal_hash: str
-    version_number: int
-    created_at: str
 
 
 @router.post("/twin/{twin_id}/snapshot", response_model=SnapshotResponse, status_code=201)
@@ -35,7 +29,7 @@ async def create_snapshot(twin_id: str, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(TwinProfile).where(TwinProfile.id == tid))
     profile = result.scalar_one_or_none()
     if not profile:
-        raise HTTPException(status_code=404, detail="Twin not found in ALCM")
+        raise TwinNotFound(twin_id)
 
     # Load current personality core
     core_result = await db.execute(

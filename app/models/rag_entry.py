@@ -8,8 +8,8 @@ from sqlalchemy.orm import relationship
 from ..database import Base
 
 # Note: pgvector Vector type used only when pgvector extension is available.
-# For Phase 1, embedding column is JSONB (list of floats).
-# Phase 2 will migrate to pgvector Vector(1536) for similarity search.
+# Embedding column is currently JSONB (list of floats).
+# Migration to pgvector Vector(1536) for similarity search is a future enhancement.
 
 
 class RagEntry(Base):
@@ -19,7 +19,7 @@ class RagEntry(Base):
     twin_id = Column(UUID(as_uuid=True), ForeignKey("twin_profiles.id", ondelete="CASCADE"), nullable=False)
 
     content = Column(Text, nullable=False)
-    embedding = Column(JSONB)  # Phase 1: list of floats. Phase 2: pgvector Vector(1536)
+    embedding = Column(JSONB)  # JSONB list of floats; pgvector Vector(1536) is a future enhancement
 
     topic = Column(String(255))
     category = Column(String(50))  # position | expertise | opinion | preference | fact | anecdote

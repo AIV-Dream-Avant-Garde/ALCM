@@ -1,8 +1,8 @@
 """Psychographic classification service.
 
 Wraps the LLM classification call and psychographic_data persistence.
-Phase 1: Called directly by the classify router.
-Phase 2: Will add batch classification, rate limiting per category.
+Called directly by the classify router.
+Batch classification and rate limiting per category are future enhancements.
 """
 import hashlib
 from typing import Optional

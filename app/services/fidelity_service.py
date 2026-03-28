@@ -1,7 +1,7 @@
 """Fidelity measurement service — CFS computation and health indicators.
 
 See Developer Guide Section 18 (Fidelity Measurement Framework).
-Phase 1: Simplified CFS from dimensional score confidences.
+Computes CFS as a weighted average of per-dimension mean confidence.
 """
 from uuid import UUID
 
@@ -24,8 +24,8 @@ DIMENSION_WEIGHTS = {
 async def compute_cfs(twin_id: UUID, db: AsyncSession) -> float:
     """Compute Composite Fidelity Score for a twin.
 
-    Phase 1: Weighted average of per-dimension mean confidence.
-    Phase 2: Full formula with user_rating and consistency scores.
+    Computes weighted average of per-dimension mean confidence.
+    Full formula with user_rating and consistency scores is a future enhancement.
     """
     result = await db.execute(
         select(DimensionalScore).where(DimensionalScore.twin_id == twin_id)

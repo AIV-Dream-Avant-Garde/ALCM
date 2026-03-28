@@ -1,8 +1,8 @@
 """Episodic memory service — creation, retrieval, and decay.
 
 See Developer Guide Section 6.1.2 (Episodic Memory).
-Phase 1: Basic creation and retrieval within training area.
-Phase 2: Per-deployment scoping, vector-based retrieval, decay mechanics.
+Supports creation and recency-based retrieval scoped to training area.
+Vector-based retrieval, per-deployment scoping, and decay mechanics are future enhancements.
 """
 from datetime import datetime, timezone
 from typing import Optional, List
@@ -48,8 +48,8 @@ async def get_relevant_episodes(
 ) -> List[EpisodicMemory]:
     """Retrieve most relevant recent episodes for prompt context.
 
-    Phase 1: Recency-based retrieval.
-    Phase 2: Topic similarity + recency weighting.
+    Currently uses recency-based retrieval.
+    Topic similarity + recency weighting is a future enhancement.
     """
     result = await db.execute(
         select(EpisodicMemory)
