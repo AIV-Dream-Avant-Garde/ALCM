@@ -50,7 +50,7 @@ class ClaudeProvider(AIProvider):
                 "https://api.anthropic.com/v1/messages",
                 headers={
                     "x-api-key": self.api_key,
-                    "anthropic-version": "2024-06-01",
+                    "anthropic-version": "2023-06-01",
                     "content-type": "application/json",
                 },
                 json={
@@ -82,7 +82,7 @@ class ClaudeProvider(AIProvider):
                 "https://api.anthropic.com/v1/messages",
                 headers={
                     "x-api-key": self.api_key,
-                    "anthropic-version": "2024-06-01",
+                    "anthropic-version": "2023-06-01",
                     "content-type": "application/json",
                 },
                 json={
@@ -131,7 +131,7 @@ class ClaudeProvider(AIProvider):
                 "POST", "https://api.anthropic.com/v1/messages",
                 headers={
                     "x-api-key": self.api_key,
-                    "anthropic-version": "2024-06-01",
+                    "anthropic-version": "2023-06-01",
                     "content-type": "application/json",
                 },
                 json={

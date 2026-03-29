@@ -17,7 +17,7 @@ class Settings(BaseSettings):
 
     # Gemini (development default)
     google_genai_api_key: str = ""
-    gemini_model: str = "gemini-2.0-flash"
+    gemini_model: str = "gemini-2.0-flash-lite"
 
     # Anthropic/Claude (production)
     anthropic_api_key: str = ""
@@ -29,7 +29,7 @@ class Settings(BaseSettings):
     llm_stream_timeout: int = 120
 
     # Embedding model (for RAG vector search — uses Google Gemini API)
-    embedding_model: str = "text-embedding-004"
+    embedding_model: str = "embedding-001"
 
     # Scraping config
     max_research_snippet_length: int = 2500

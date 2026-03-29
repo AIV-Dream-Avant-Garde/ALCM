@@ -75,6 +75,12 @@ async def attribute_data(req: AttributeRequest, db: AsyncSession) -> AttributeRe
         if not dimension or not sub_component or observed_value is None:
             continue
 
+        # Skip non-numeric values (enum sub-components like reasoning_mode="mixed")
+        try:
+            numeric_value = float(observed_value)
+        except (ValueError, TypeError):
+            continue
+
         score_result = await db.execute(
             select(DimensionalScore).where(
                 DimensionalScore.twin_id == twin_uuid,
@@ -88,7 +94,7 @@ async def attribute_data(req: AttributeRequest, db: AsyncSession) -> AttributeRe
             old_value = score.value
             old_confidence = score.confidence
             new_value, new_std_error, new_confidence = update_sub_component(
-                score.value, score.std_error, float(observed_value),
+                score.value, score.std_error, numeric_value,
                 inference_confidence, source_reliability,
             )
             score.value = round(new_value, 2)
@@ -102,7 +108,7 @@ async def attribute_data(req: AttributeRequest, db: AsyncSession) -> AttributeRe
             new_confidence = min(1.0, inference_confidence * source_reliability)
             score = DimensionalScore(
                 twin_id=twin_uuid, dimension=dimension, sub_component=sub_component,
-                value=round(float(observed_value), 2), confidence=round(new_confidence, 4),
+                value=round(numeric_value, 2), confidence=round(new_confidence, 4),
                 std_error=round(INITIAL_STD_ERROR * (1 - new_confidence), 4), observation_count=1,
             )
             db.add(score)
