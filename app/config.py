@@ -28,9 +28,8 @@ class Settings(BaseSettings):
     llm_request_timeout: int = 60
     llm_stream_timeout: int = 120
 
-    # Embedding model (for RAG vector search)
-    embedding_model: str = "text-embedding-3-small"
-    openai_api_key: str = ""
+    # Embedding model (for RAG vector search — uses Google Gemini API)
+    embedding_model: str = "text-embedding-004"
 
     # Scraping config
     max_research_snippet_length: int = 2500
