@@ -20,6 +20,9 @@ target_metadata = Base.metadata
 
 # Override sqlalchemy.url from environment variable
 database_url = os.environ.get("DATABASE_URL", "postgresql+asyncpg://aiv:aiv_password@localhost:5432/alcm_db")
+# Railway provides postgresql:// but asyncpg needs postgresql+asyncpg://
+if database_url.startswith("postgresql://"):
+    database_url = database_url.replace("postgresql://", "postgresql+asyncpg://", 1)
 config.set_main_option("sqlalchemy.url", database_url)
 
 
